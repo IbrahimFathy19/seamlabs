@@ -2,15 +2,19 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\ResponseObject;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use App;
+use Illuminate\Http\Response;
 
 class Handler extends ExceptionHandler
 {
+    use JsonExceptionHandlerTrait;
     /**
      * A list of the exception types that are not reported.
      *
-     * @var array<int, class-string<Throwable>>
+     * @var array
      */
     protected $dontReport = [
         //
@@ -19,7 +23,7 @@ class Handler extends ExceptionHandler
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
-     * @var array<int, string>
+     * @var array
      */
     protected $dontFlash = [
         'current_password',
@@ -27,15 +31,36 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+
     /**
-     * Register the exception handling callbacks for the application.
+     * Render an exception into an HTTP response.
      *
-     * @return void
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $exception
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
      */
-    public function register()
+    public function render($request, Throwable $exception)
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+        if ($request->expectsJson()) {
+            return $this->apiException($request, $exception);
+        }
+        $response = new ResponseObject();
+        if (App::environment('local', 'staging')) {
+            $response->errors = [
+                'message'   => $exception->getMessage()
+            ];
+            $response->exception = [
+                'exception' => get_class($exception),
+                'file'      => $exception->getFile(),
+                'line'      => $exception->getLine(),
+                'trace'     => $exception->getTrace()
+            ];
+            $response->statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+            return response()->json($response, $response->statusCode);
+        }
+
+        return parent::render($request, $exception);
     }
 }
