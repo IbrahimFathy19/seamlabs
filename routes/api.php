@@ -4,6 +4,7 @@ use App\Http\Controllers\API\ProblemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +30,8 @@ Route::post('register', [Auth\RegisterController::class, 'register']);
 Route::post('login', [Auth\LoginController::class, 'login']);
 Route::post('forgot-password', [Auth\LoginController::class, 'forgotPassword']);
 Route::post('reset-password', [Auth\LoginController::class, 'resetPassword'])->name('password.reset');
+
+
+Route::resource('user', UserController::class)->except([
+    'create', 'store', 'edit'
+]);;
