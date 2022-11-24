@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
