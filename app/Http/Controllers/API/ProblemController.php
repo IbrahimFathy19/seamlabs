@@ -3,46 +3,36 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Error;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 define("ALPHABETICAL_CHARACTERS_COUNT", 26);
 
 class ProblemController extends Controller
 {
-
-    private function count1($end)
+    private function _count($n)
     {
-
         // Base cases (Assuming n is not negative)
-        if ($end < 5)
-            return $end;
-        if ($end >= 5 && $end < 10)
-            return $end - 1;
+        if ($n < 5)
+            return $n;
+        if ($n >= 5 && $n < 10)
+            return $n - 1;
 
-        // Calculate 10^(d-1) (10 raise to the
-        // power d-1) where d is number of digits
-        // in n. po will be 100 for n = 578
-        $po = 1;
-        for ($x = intval($end / $po); $x > 9; $x = intval($end / $po))
-            $po = $po * 10;
+        $power = 1;
+        for ($x = intval($n / $power); $x > 9; $x = intval($n / $power)) {
+            $power = $power * 10;
+        }
 
-        // find the most significant digit (msd is 5 for 578)
-        $msd = intval($end / $po);
+        $mostSignificantDigit = intval($n / $power);
 
-        if ($msd != 5)
-
-            // For 578, total will be 4*count(10^2 - 1)
-            // + 4 + count(78)
-            return $this->count1($msd) * $this->count1($po - 1) +
-                $this->count1($msd) + $this->count1($end % $po);
-        else
-            // For 35, total will be equal to count(29)
-            return $this->count1($msd * $po - 1);
+        if ($mostSignificantDigit == 5) {
+            return $this->_count($mostSignificantDigit * $power - 1);
+        } else {
+            $mostSignificantDigitCount = $this->_count($mostSignificantDigit);
+            return $mostSignificantDigitCount * $this->_count($power - 1) +
+                $mostSignificantDigitCount + $this->_count($n % $power);
+        }
     }
-
 
     public function problem_1(Request $request)
     {
@@ -56,25 +46,23 @@ class ProblemController extends Controller
 
         $start = $validator->validated()['start'];
         $end = $validator->validated()['end'];
-        // $count = $this->count1($end);
 
-        /** O(n) solution */
-        $count = 0;
-        for ($i = $start; $i <= $end; $i++) {
-            if (strpos($i, "5") === false) {
-                $count++;
-            }
-        }
+        // /** O(log n) solution */
+        $endCount = $end < 0 ? $this->_count(abs($end)) * -1 : $this->_count(abs($end)) * 1; // 1 - end
+        $startCount = $start < 0 ? $this->_count(abs($start)) * -1 : $this->_count(abs($start)) * 1; // 1 - start
+        $count = $endCount - $startCount + 1;
 
+        // /** O(n) solution */
+        // $count = 0;
+        // for ($i = $start; $i <= $end; $i++) {
+        //     if (strpos($i, "5") === false) {
+        //         $count++;
+        //     }
+        // }
 
         return $this->handleResponse([
             'count' => $count
         ]);
-    }
-
-    private function has5(int $value)
-    {
-        return $value > 0 && ($value % 10 == 5 || $this->has5($value / 10));
     }
 
     private function base26ToDecimal(string $n)

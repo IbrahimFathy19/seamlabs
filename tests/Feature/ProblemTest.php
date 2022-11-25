@@ -17,6 +17,61 @@ class ProblemTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_problem_1_valid_ex1()
+    {
+        $response = $this->get('/api/problem/1?start=-100&end=100');
+        $response->assertJson([
+            'object' => [
+                "count" => 163
+            ]
+        ]);
+        $response->assertStatus(200);
+    }
+
+    public function test_problem_1_valid_ex2()
+    {
+        $response = $this->get('/api/problem/1?start=0&end=100');
+        $response->assertJson([
+            'object' => [
+                "count" => 82
+            ]
+        ]);
+        $response->assertStatus(200);
+    }
+
+    public function test_problem_1_valid_ex3()
+    {
+        $response = $this->get('/api/problem/1?start=100&end=100');
+        $response->assertJson([
+            'object' => [
+                "count" => 1
+            ]
+        ]);
+        $response->assertStatus(200);
+    }
+
+    public function test_problem_1_valid_ex4()
+    {
+        $response = $this->get('/api/problem/1?start=0&end=0');
+        $response->assertJson([
+            'object' => [
+                "count" => 1
+            ]
+        ]);
+        $response->assertStatus(200);
+    }
+
+    public function test_problem_1_valid_big_numbers()
+    {
+        $response = $this->get('/api/problem/1?start=-500000000000&end=500000000000');
+        $response->assertJson([
+            'object' => [
+                "count" => 313810596089
+            ]
+        ]);
+        $response->assertStatus(200);
+    }
+
     public function test_problem_1_valid_negative()
     {
         $response = $this->get('/api/problem/1?start=-1&end=8');
