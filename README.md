@@ -9,12 +9,6 @@
 
 # SeamLabs Interview Test
 
-## Test
-
-```sh
-sail artisan test
-```
-
 ## Installation
 
 ```sh
@@ -33,3 +27,9 @@ composer install
 ```
 
 > Then you will be able to interact with the web application through ```http://localhost:8000```
+
+## Test
+
+```sh
+./vendor/bin/sail artisan test
+```
